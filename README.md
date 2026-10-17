@@ -89,7 +89,8 @@ question first if you like ("What does this mean?"), then click a letter:
 - **Tax office letter** — it explains what's owed and why, points out the one-month
   objection deadline, and offers to write the objection. Try asking in another language.
 
-**Musterstadt Service** (http://127.0.0.1:8000/city/) is a fictional city portal. Ask
+**ServicePortal Musterstadt** (http://127.0.0.1:8000/city/) is a fictional city portal, in German and styled like
+a typical German city service portal (fictional name, no real logos, "Demo" badge). Ask
 "I have to go to the Bürgeramt for my citizenship, can you make an appointment?" There
 are no appointments for six weeks, but the portal offers an online application, so the
 helper suggests that instead and fills it in with you. Address registration works the
@@ -101,7 +102,8 @@ the email account belong to her.
 
 ## Try it on the practice site
 
-The app includes **Example Mail**, a small fake email provider, so demos don't depend on
+The app includes **Example Mail**, a small fake German email provider styled like a typical German free-mail
+portal (fictional name, no real logos, "Demo" badge), so demos don't depend on
 real websites:
 
 - "I want to read my emails, but I don't know my password" — it goes through "forgot

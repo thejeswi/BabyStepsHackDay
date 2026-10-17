@@ -47,7 +47,7 @@ async def main():
         except ToolError as e:
             print("OK blocked:", bad)
     print("irreversible('Send')", b.looks_irreversible("Send"), "| ('Log in')", b.looks_irreversible("Log in"),
-          "| ('Delete account')", b.looks_irreversible("Delete account"), "| ('Text me a code')", b.looks_irreversible("Text me a code"))
+          "| ('Delete account')", b.looks_irreversible("Delete account"), "| ('Code per SMS anfordern')", b.looks_irreversible("Code per SMS anfordern"))
     # forgot-password flow: code field must count as secret
     await b.open_url(f"{config.BASE_URL}/mock/forgot")
     p = await b.read_page(); r = next(l for l in p.splitlines() if "type=email" in l).split("]")[0][1:]
