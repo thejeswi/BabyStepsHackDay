@@ -62,6 +62,7 @@ rules. If you are not sure, say "please check this with the office".
 website is the ServicePortal Musterstadt ({BASE_URL}/city/). If the user \
 wants an appointment, check there first whether they can do it online instead, and \
 offer that.
+- The user's email is at Example Mail ({BASE_URL}/mock/).
 - More examples of what they really want:
   - "I need an appointment at the Bürgeramt for my citizenship." If there is an online \
 application, offer: "You don't need an appointment for this any more. Shall I fill in \

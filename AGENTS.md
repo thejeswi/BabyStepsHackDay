@@ -49,8 +49,9 @@ BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8011 .venv/bin/python tests/smoke_browser.py
 BABYSTEPS_PORT=8015 .venv/bin/python tests/smoke_attached.py
 ```
 
-Live runs cost about $1 each; run them only when the agent loop or prompt changed (commands
-in `README.md`). Always set `BABYSTEPS_PORT` so tests don't collide with a running demo
+Live runs cost about $1 each; run them only when the agent loop, prompt or demo sites changed
+(commands in `README.md`). `tests/live_usecases.py` checks the three demo use cases in
+`DEMO.md`; keep it passing. Always set `BABYSTEPS_PORT` so tests don't collide with a running demo
 on 8000.
 
 ## Rules for changes

@@ -162,7 +162,8 @@ Environment variables (or lines in `env/.env`):
 
 Live end-to-end runs of the demo scenes (use the API, about $1 each):
 `BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8012 .venv/bin/python tests/live_demo.py` (email + passwords) and
-`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8018 .venv/bin/python tests/live_city.py` (letters + city portal)
+`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8018 .venv/bin/python tests/live_city.py` (letters + city portal) and
+`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8019 .venv/bin/python tests/live_usecases.py` (the three demo use cases in `DEMO.md`, with checks)
 
 Smoke test of the browser part (no API key needed):
 `BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8011 .venv/bin/python tests/smoke_browser.py`

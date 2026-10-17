@@ -5,7 +5,7 @@ Verdana, login card), with a fictional name, no real logos, and a 'Demo' badge, 
 cannot pass for a real login page.
 
 Flows: create account, log in, forgot password (code goes to a fake phone), inbox with one
-ordinary email and one scam email. State is in memory and resets on server restart.
+ordinary email and two scam emails (fake fine, fake security team). State is in memory and resets on server restart.
 The fake phone page (/mock/phone) is for the HUMAN only; the agent's browser is blocked
 from it (config.BLOCKED_PATH_PREFIXES), the same way a real agent can't read your phone.
 """
@@ -88,8 +88,22 @@ def start() -> HTMLResponse:
                         "<a href='/city/'>ServicePortal Musterstadt</a></p></div></div>")
 
 
+@router.get("/demo-login")
+def demo_login():
+    """For the presenter only: log Ayşe in once before the demo, like a mail account that stays
+    logged in. The agent's browser is blocked from this path (config.BLOCKED_PATH_PREFIXES),
+    so it can't skip the password flow."""
+    sid = secrets.token_hex(16)
+    SESSIONS[sid] = "ayse.yilmaz@example.mail"
+    r = RedirectResponse("/mock/inbox", status_code=303)
+    r.set_cookie("sid", sid)
+    return r
+
+
 @router.get("/")
-def login_form(msg: str = "") -> HTMLResponse:
+def login_form(request: Request, msg: str = ""):
+    if current_user(request):  # still logged in: straight to the inbox, like real mail sites
+        return RedirectResponse("/mock/inbox", status_code=303)
     teasers = "".join(f"<div class=teaser><b>{t}</b>{d}</div>" for t, d in [
         ("Wetter: Goldener Oktober", "Bis zu 19 Grad am Wochenende in Musterstadt."),
         ("Rente: Was sich 2027 ändert", "Die wichtigsten Neuerungen im Überblick."),
@@ -211,10 +225,16 @@ def inbox(request: Request):
 <div class=layout>
  <div class=folders>
   <button class="btn write" type=button>E-Mail schreiben</button>
-  <a class=active href="/mock/inbox">Posteingang <span>2</span></a><a href="#">Gesendet</a><a href="#">Entwürfe</a>
+  <a class=active href="/mock/inbox">Posteingang <span>3</span></a><a href="#">Gesendet</a><a href="#">Entwürfe</a>
   <a href="#">Spam</a><a href="#">Papierkorb</a>
  </div>
  <div>
+  <div class="mail unread"><div class=head><span>Ordnungsamt Musterstadt &lt;bussgeld@ordnungsamt-musterstadt.info&gt;</span><span>Heute</span></div>
+   <div class=subj>LETZTE MAHNUNG: Bußgeld 289,50 EUR (Az. 77-XK-2291) - Zahlung innerhalb 24 Stunden</div>
+   <div class=body>Sehr geehrte Bürgerin, laut unseren Unterlagen ist ein BUSSGELD in Höhe von 289,50 EUR NICHT BEZAHLT.
+   Zahlen Sie INNERHALB VON 24 STUNDEN, andernfalls wird ein HAFTBEFEHL erlassen und die Polizei kommt zu Ihnen nach Hause.
+   Überweisen Sie an M. Kovacs Consulting Ltd, IBAN LT12 1000 0111 0100 1000, oder kaufen Sie Google-Play-Karten im Wert
+   von 290 EUR und rufen Sie mit den Codes unter +44 20 7946 0958 an. Kontaktieren Sie in dieser Sache NICHT das Bürgeramt.</div></div>
   <div class="mail unread"><div class=head><span>Gisela Hoffmann (Nachbarin)</span><span>Heute</span></div>
    <div class=subj>Kaffee am Sonntag?</div>
    <div class=body>Liebe Ayşe, hast du Lust auf Kaffee am Sonntag um 15 Uhr? Ich bringe Kuchen mit. Liebe Grüße, Gisela</div></div>

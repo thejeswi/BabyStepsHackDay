@@ -41,8 +41,8 @@ ALLOWED_HOSTS = [
 ]
 # Paths the agent must never open even on allowed hosts. The fake phone stands in for
 # the user's real phone: the agent must not read the user's codes. /passwords is the
-# human-only view of the password book.
-BLOCKED_PATH_PREFIXES = ["/mock/phone", "/passwords"]
+# human-only view of the password book. /mock/demo-login is the presenter's shortcut.
+BLOCKED_PATH_PREFIXES = ["/mock/phone", "/mock/demo-login", "/passwords"]
 
 # Attach to an already running Chrome (the BabySteps bundle: Chrome for Testing + the chat
 # side panel extension, started by scripts/babysteps.sh) instead of launching our own.
