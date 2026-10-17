@@ -30,18 +30,11 @@ EFFORT = os.environ.get("BABYSTEPS_EFFORT", "medium")
 # Server-side refusal fallback (beta). Set BABYSTEPS_FALLBACKS=0 if the API rejects it.
 USE_FALLBACKS = os.environ.get("BABYSTEPS_FALLBACKS", "1") == "1"
 
-# Hosts the agent's browser may navigate to. Navigations anywhere else are blocked
-# by the browser itself, not by the prompt. Comma-separated; subdomains are included.
-ALLOWED_HOSTS = [
-    h.strip().lower()
-    for h in os.environ.get(
-        "BABYSTEPS_ALLOWED_HOSTS", "127.0.0.1,localhost,bvg.de,wikipedia.org"
-    ).split(",")
-    if h.strip()
-]
-# Paths the agent must never open even on allowed hosts. The fake phone stands in for
-# the user's real phone: the agent must not read the user's codes. /passwords is the
-# human-only view of the password book. /mock/demo-login is the presenter's shortcut.
+# The helper may open ANY website: no site allowlist, by design (doing it for the user is
+# safer than making them do it by hand). Only these human-only pages of the BabySteps
+# server itself are blocked: the fake phone stands in for the user's real phone (the agent
+# must not read the user's codes); /passwords is the human view of the password book;
+# /mock/demo-login is the presenter's shortcut to log Ayşe's mail in.
 BLOCKED_PATH_PREFIXES = ["/mock/phone", "/mock/demo-login", "/passwords"]
 
 # Attach to an already running Chrome (the BabySteps bundle: Chrome for Testing + the chat

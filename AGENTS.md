@@ -59,10 +59,11 @@ on 8000.
 - The chat page (`static/index.html`) must work at two widths: the side panel (360-500px)
   and a full window. After a UI change, screenshot both (Playwright with
   `executable_path="chrome/chrome"`) and check for horizontal overflow.
-- Keep the safety rules intact: the site allowlist, the download block, the
-  password-field block, and the confirmation before irreversible buttons
+- Keep the safety rules intact: the download block, the block on non-web addresses and
+  human-only pages, the password-field block, and the confirmation before irreversible buttons
   (`babysteps/browser.py`, `babysteps/agent.py`). The model must never see passwords
-  (`babysteps/vault.py`).
+  (`babysteps/vault.py`). There is deliberately NO site allowlist: the helper should work
+  on any website (team decision); don't add one back.
 - The demo sites and letters are in German on purpose; the user types in English (persona:
   Ayşe, see `DEMO.md`). Use fictional names only, no real logos.
 - Several people push to this repo during the hackathon. Fetch before starting, merge
