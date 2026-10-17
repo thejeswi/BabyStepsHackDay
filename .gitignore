@@ -12,3 +12,5 @@ vault.json
 /.chrome-profile/
 # Local task-board state of the pi tooling
 durable/.pi/
+# Git worktrees of local Claude Code sessions
+.claude/worktrees/
