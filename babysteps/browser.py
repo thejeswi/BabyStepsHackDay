@@ -11,6 +11,7 @@ import asyncio
 import re
 from urllib.parse import urlparse
 
+from playwright.async_api import Error as PlaywrightError
 from playwright.async_api import Page, Request, Route, async_playwright
 
 from . import config
@@ -174,7 +175,17 @@ class Browser:
 
     async def read_page(self) -> str:
         page = self._page()
-        data = await page.evaluate(_READ_PAGE_JS, config.MAX_ELEMENTS)
+        for attempt in range(4):
+            try:
+                data = await page.evaluate(_READ_PAGE_JS, config.MAX_ELEMENTS)
+                break
+            except PlaywrightError as e:
+                # A form submit or redirect can still be under way; wait for the new page and retry.
+                if "Execution context was destroyed" not in str(e) or attempt == 3:
+                    raise
+                print(f"[browser] page was navigating during read (attempt {attempt + 1}); retrying")
+                await self._settle()
+                page = self._page()
         text = data["text"]
         cut = len(text) > config.PAGE_TEXT_LIMIT
         text = text[: config.PAGE_TEXT_LIMIT]

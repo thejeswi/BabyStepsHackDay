@@ -4,6 +4,7 @@ History is append-only (required for thinking blocks on current models): every r
 full content is appended unchanged, followed by the tool results.
 """
 import json
+import platform
 import time
 from typing import Any, Awaitable, Callable
 
@@ -12,6 +13,10 @@ import anthropic
 from . import config, memory, vault
 from .browser import Browser, ToolError
 from .prompt import SYSTEM_PROMPT
+
+_OS = {"Darwin": "a Mac (keyboard shortcuts use Cmd, not Ctrl)", "Windows": "Windows"}.get(platform.system(), platform.system())
+# Fixed for the whole run, so it doesn't break prompt caching.
+FULL_SYSTEM_PROMPT = SYSTEM_PROMPT + f"\n## This computer\nThe user's computer is {_OS}.\n"
 
 Emit = Callable[[dict], Awaitable[None]]
 
@@ -113,7 +118,7 @@ class Agent:
         kwargs = dict(
             model=config.MODEL,
             max_tokens=16000,
-            system=SYSTEM_PROMPT,
+            system=FULL_SYSTEM_PROMPT,
             tools=TOOLS,
             messages=self.messages,
             thinking={"type": "adaptive"},
