@@ -9,11 +9,14 @@ German free-mail provider), so the audience sees she couldn't manage them alone.
 1. Stop the app if it is running (Ctrl+C in its terminal).
 2. Delete the `memory/` folder and `vault.json` in the project folder, so the helper starts
    with an empty notebook and an empty password book.
-3. Start: `.venv/bin/python -m babysteps`
-4. Open http://127.0.0.1:8000/ in your normal browser, on the **left half** of the screen.
-   The helper's own browser window opens on the **right half** by itself.
-5. Open http://127.0.0.1:8000/mock/phone in a separate tab or on a second screen. This is
-   Ayşe's "phone" (only needed for scene 5).
+3. Start: `scripts/babysteps.sh`. One Chrome window opens; maximize it.
+4. Click the BabySteps button in the toolbar (puzzle icon → BabySteps; pin it once so it stays
+   visible). The chat opens in the **side panel**; the helper works in the tab next to it.
+   (Two-window alternative: `.venv/bin/python -m babysteps`, chat at http://127.0.0.1:8000/ on
+   the left half of the screen, the helper's window opens on the right half.)
+5. Open http://127.0.0.1:8000/mock/phone in a second screen or another browser. This is
+   Ayşe's "phone" (only needed for scene 5). Keep it out of the BabySteps window, so the
+   helper's tab stays the one the audience sees.
 6. Do one rehearsal of each scene, then repeat steps 1–3 so the real demo starts clean.
 
 Between scenes, click **Start over** (top right). The chat clears; the notebook stays, so the
