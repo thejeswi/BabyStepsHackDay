@@ -10,3 +10,5 @@ vault.json
 # Standalone Chrome (scripts/install-chrome.sh) and its profile: too large / personal for git
 /chrome/
 /.chrome-profile/
+# Local task-board state of the pi tooling
+durable/.pi/
