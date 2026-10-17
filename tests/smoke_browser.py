@@ -40,14 +40,17 @@ async def main():
     except ToolError as e:
         print("OK password blocked:", e)
     print(await b.highlight(int(pw)))
-    for bad in ["https://examp1e-mail-support.net/x", f"{config.BASE_URL}/mock/phone"]:
+    from babysteps.browser import path_blocked, scheme_allowed
+    assert scheme_allowed("https://any-site.example/x") and not path_blocked("https://any-site.example/passwords")
+    print("OK any website allowed (no allowlist)")
+    for bad in ["file:///etc/hosts", f"{config.BASE_URL}/mock/phone", f"{config.BASE_URL}/passwords"]:
         try:
             await b.open_url(bad)
             raise SystemExit(f"FAIL: {bad} opened")
         except ToolError as e:
             print("OK blocked:", bad)
     print("irreversible('Send')", b.looks_irreversible("Send"), "| ('Log in')", b.looks_irreversible("Log in"),
-          "| ('Delete account')", b.looks_irreversible("Delete account"), "| ('Text me a code')", b.looks_irreversible("Text me a code"))
+          "| ('Delete account')", b.looks_irreversible("Delete account"), "| ('Code per SMS anfordern')", b.looks_irreversible("Code per SMS anfordern"))
     # forgot-password flow: code field must count as secret
     await b.open_url(f"{config.BASE_URL}/mock/forgot")
     p = await b.read_page(); r = next(l for l in p.splitlines() if "type=email" in l).split("]")[0][1:]
@@ -58,7 +61,7 @@ async def main():
         await b.type_text(int(code), "123456", False); raise SystemExit("FAIL: code typing allowed")
     except ToolError:
         print("OK code field blocked")
-    # link click to blocked host from inside the page (log in first via a fresh account)
+    # scam link to an external .exe: allowed to navigate (no allowlist); must not crash or download
     from babysteps.mock_site import ACCOUNTS
     ACCOUNTS["ayse.yilmaz@example.mail"]["password"] = "testtest1"
     await b.open_url(f"{config.BASE_URL}/mock/")
@@ -67,8 +70,7 @@ async def main():
     p = await b.read_page()
     link = next(l for l in p.splitlines() if "SecurityTool" in l).split("]")[0][1:]
     print(await b.click(int(link)))
-    print("still on:", b._page().url)
-    assert b._page().url.endswith("/mock/inbox"), "should have gone back to the inbox"
+    print("now on:", b._page().url)
     await b.stop()
     print("ALL SMOKE CHECKS PASSED")
 

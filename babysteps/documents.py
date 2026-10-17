@@ -1,4 +1,4 @@
-"""Pre-made demo letters the user can 'show' the helper with one click (instead of a photo).
+"""Pre-made demo letters (in German, like real letters; the demo user reads only English) the user can 'show' the helper with one click (instead of a photo).
 
 All senders, people and numbers are fictional (Musterstadt is the German placeholder city).
 Rules the helper should mention (exemption, objection deadline) are printed in the letters
@@ -8,76 +8,79 @@ themselves, because the helper is told to state official rules only from what it
 DOCUMENTS = {
     "tv_fee": {
         "button": "TV & radio fee letter",
-        "title": "Letter: Broadcasting fee (Rundfunkbeitrag)",
+        "title": "Brief: Rundfunkbeitrag",
         "text": """\
-Broadcasting Fee Service (Beitragsservice) · Musterstadt
-To: Ms Ayşe Yılmaz, Lindenweg 4, 12345 Musterstadt          Date: 2 October 2026
-Contribution number: 498 223 117
+Beitragsservice Musterstadt · Postfach 10 80 · 12345 Musterstadt
+Frau Ayşe Yılmaz, Lindenweg 4, 12345 Musterstadt          Musterstadt, 2. Oktober 2026
+Beitragsnummer: 498 223 117
 
-PAYMENT NOTICE (Zahlungsaufforderung)
+ZAHLUNGSAUFFORDERUNG
 
-Dear Ms Müller,
-for your flat, the broadcasting fee of EUR 18.36 per month is due. Please pay
-EUR 55.08 for the period October to December 2026 by 15 November 2026.
+Sehr geehrte Frau Yılmaz,
+für Ihre Wohnung ist der Rundfunkbeitrag in Höhe von monatlich 18,36 EUR zu zahlen.
+Bitte überweisen Sie für den Zeitraum Oktober bis Dezember 2026 den Betrag von
+55,08 EUR bis zum 15. November 2026.
 
-Bank: Musterstadt Sparkasse · IBAN DE89 3704 0044 0532 0130 00
-Reference: 498 223 117
+Bank: Sparkasse Musterstadt · IBAN DE89 3704 0044 0532 0130 00
+Verwendungszweck: 498 223 117
 
-You can also pay by direct debit (SEPA mandate) so you never miss a payment:
-musterstadt-service portal → Forms → Direct debit for broadcasting fee.
+Sie können auch am Lastschriftverfahren teilnehmen (SEPA-Mandat), damit Sie keine
+Zahlung verpassen: Musterstadt Service → Formulare → Lastschrift Rundfunkbeitrag.
 
-Exemption: People who receive basic income support in old age (Grundsicherung im
-Alter), housing benefit with certain conditions, or similar social benefits can
-apply to be exempted from the fee. Apply on the Musterstadt Service portal:
-Forms → Broadcasting fee exemption. You will need your contribution number.
+Befreiung: Wer Grundsicherung im Alter und bei Erwerbsminderung, Bürgergeld oder
+bestimmte andere Sozialleistungen erhält, kann eine Befreiung von der Beitragspflicht
+beantragen. Den Antrag finden Sie im Portal Musterstadt Service unter Formulare →
+Befreiung vom Rundfunkbeitrag. Halten Sie Ihre Beitragsnummer bereit.
 
-Kind regards, Broadcasting Fee Service
+Mit freundlichen Grüßen
+Ihr Beitragsservice
 """,
     },
     "fake_fine": {
         "button": "Final reminder: unpaid fine",
-        "title": "Letter: 'Final reminder' about a fine",
+        "title": "Brief: „Letzte Mahnung“ Bußgeld",
         "text": """\
-ORDNUNGSAMT MUSTERSTADT - DEPARTMENT OF FINES
-To: Ayşe Yılmaz                                         URGENT - FINAL NOTICE
+ORDNUNGSAMT MUSTERSTADT - ABTEILUNG BUSSGELD
+An: Ayşe Yılmaz                                   DRINGEND - LETZTE MAHNUNG
 
-Dear citizen,
-our records show an UNPAID TRAFFIC FINE of EUR 289.50 (case no. 77-XK-2291).
-You must pay WITHIN 24 HOURS. If you do not pay, a WARRANT FOR YOUR ARREST will
-be issued and the police will come to your home.
+Sehr geehrte Bürgerin,
+laut unseren Unterlagen ist ein BUSSGELD in Höhe von 289,50 EUR (Az. 77-XK-2291)
+NICHT BEZAHLT. Sie müssen INNERHALB VON 24 STUNDEN zahlen. Andernfalls wird ein
+HAFTBEFEHL erlassen und die Polizei kommt zu Ihnen nach Hause.
 
-Pay immediately to:
-Account holder: M. Kovacs Consulting Ltd
+Zahlen Sie sofort an:
+Kontoinhaber: M. Kovacs Consulting Ltd
 IBAN LT12 1000 0111 0100 1000
-or buy Google Play gift cards worth EUR 290 and call +44 20 7946 0958 with the codes.
+oder kaufen Sie Google-Play-Karten im Wert von 290 EUR und rufen Sie mit den Codes
+unter +44 20 7946 0958 an.
 
-Do not contact the city office about this matter. Our staff will only speak to you on
-the number above.
+Kontaktieren Sie in dieser Sache NICHT das Bürgeramt. Unsere Mitarbeiter sprechen
+nur unter der oben genannten Nummer mit Ihnen.
 
 Ordnungsamt Musterstadt
 """,
     },
     "tax": {
         "button": "Tax office letter",
-        "title": "Letter: Tax assessment (Steuerbescheid) 2025",
+        "title": "Brief: Einkommensteuerbescheid 2025",
         "text": """\
 Finanzamt Musterstadt · Steuernummer 21/815/08150
-To: Ms Ayşe Yılmaz, Lindenweg 4, 12345 Musterstadt          Date: 6 October 2026
+Frau Ayşe Yılmaz, Lindenweg 4, 12345 Musterstadt          Musterstadt, 6. Oktober 2026
 
-INCOME TAX ASSESSMENT 2025 (Einkommensteuerbescheid)
+BESCHEID FÜR 2025 ÜBER EINKOMMENSTEUER
 
-Assessed income tax:                      EUR 1,904.00
-Already paid (tax withheld):              EUR 1,492.00
-Amount you have to pay:                   EUR   412.00
-Due date: 9 November 2026
+Festgesetzte Einkommensteuer:              1.904,00 EUR
+Bereits gezahlt (Lohnsteuer):              1.492,00 EUR
+Noch zu zahlen:                              412,00 EUR
+Fällig am: 9. November 2026
 
-Note: Your stated costs for the care of your mother (EUR 2,300) were not taken into
-account, because no proof was sent with your tax return.
+Erläuterung: Die geltend gemachten Aufwendungen für die Pflege Ihrer Mutter
+(2.300 EUR) konnten nicht berücksichtigt werden, da keine Nachweise eingereicht wurden.
 
-Information on legal remedies (Rechtsbehelfsbelehrung): You can object to this
-assessment (Einspruch) within ONE MONTH after it was delivered. Send the objection in
-writing or online to Finanzamt Musterstadt. If you send the missing proof with your
-objection, the office will check the assessment again.
+Rechtsbehelfsbelehrung: Gegen diesen Bescheid ist der Einspruch zulässig. Der
+Einspruch ist innerhalb EINES MONATS nach Bekanntgabe dieses Bescheides beim
+Finanzamt Musterstadt schriftlich oder elektronisch einzulegen. Reichen Sie die
+fehlenden Nachweise mit dem Einspruch ein, wird der Bescheid erneut geprüft.
 """,
     },
 }

@@ -1,4 +1,7 @@
 .env
+# Local settings and secrets; only the template is committed
+/env/*
+!/env/.env.example
 .venv/
 __pycache__/
 *.pyc
@@ -10,3 +13,7 @@ vault.json
 # Standalone Chrome (scripts/install-chrome.sh) and its profile: too large / personal for git
 /chrome/
 /.chrome-profile/
+# Local task-board state of the pi tooling
+durable/.pi/
+# Git worktrees of local Claude Code sessions
+.claude/worktrees/

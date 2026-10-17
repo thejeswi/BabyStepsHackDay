@@ -10,8 +10,9 @@ target=_blank). The user's other tabs are left alone; the limits below apply to 
 agent's pages.
 
 Safety limits are enforced here in code, not in the prompt:
-- main-frame navigations to hosts outside config.ALLOWED_HOSTS are aborted;
-- paths in config.BLOCKED_PATH_PREFIXES are aborted (the fake phone);
+- any website is allowed (no allowlist, by design), but only over http(s): file://,
+  chrome:// etc. are aborted, so the helper can't read local files or browser settings;
+- the BabySteps server's human-only pages (config.BLOCKED_PATH_PREFIXES) are aborted;
 - downloads are refused;
 - typing into password fields is refused (the user types secrets themselves);
 - clicks on irreversible-looking buttons need the user's answer first (see agent.py).
@@ -83,7 +84,7 @@ _HIGHLIGHT_JS = r"""
 # Button texts that mean "this can't be undone". English + German, matched as whole words.
 _IRREVERSIBLE = re.compile(
     r"\b(send|submit|book|buy|pay|purchase|order|delete|remove|confirm|transfer|donate|"
-    r"senden|absenden|buchen|kaufen|bezahlen|zahlen|bestellen|löschen|entfernen|bestätigen|überweisen)\b",
+    r"senden|absenden|buchen|eintragen|erteilen|kaufen|bezahlen|zahlen|bestellen|löschen|entfernen|bestätigen|überweisen)\b",
     re.IGNORECASE,
 )
 
@@ -92,16 +93,16 @@ class ToolError(Exception):
     """An error the model should see and react to (returned as is_error tool_result)."""
 
 
-def host_allowed(url: str) -> bool:
-    parsed = urlparse(url)
-    if parsed.scheme in ("about", "data", "blob"):
-        return True
-    host = (parsed.hostname or "").lower()
-    return any(host == h or host.endswith("." + h) for h in config.ALLOWED_HOSTS)
+def scheme_allowed(url: str) -> bool:
+    """Web pages only. Blocks file://, chrome://, view-source: etc. (local files, settings)."""
+    return urlparse(url).scheme in ("http", "https", "about", "data", "blob")
 
 
 def path_blocked(url: str) -> bool:
+    """Human-only pages of our own server (fake phone, password book)."""
     parsed = urlparse(url)
+    if (parsed.hostname or "").lower() not in ("127.0.0.1", "localhost") or (parsed.port or 80) != config.PORT:
+        return False
     return any(parsed.path.startswith(p) for p in config.BLOCKED_PATH_PREFIXES)
 
 
@@ -180,7 +181,7 @@ class Browser:
 
     async def _route(self, route: Route, request: Request) -> None:
         if request.is_navigation_request() and self._is_main_frame(request):
-            if (not host_allowed(request.url) or path_blocked(request.url)) and await self._is_agent_navigation(request):
+            if (not scheme_allowed(request.url) or path_blocked(request.url)) and await self._is_agent_navigation(request):
                 self.blocked_log.append(request.url)
                 await route.abort("blockedbyclient")
                 return
@@ -204,15 +205,15 @@ class Browser:
             return ""
         urls = ", ".join(self.blocked_log)
         self.blocked_log.clear()
-        return f" NOTE: navigation to {urls} was blocked (not an allowed site)."
+        return f" NOTE: navigation to {urls} was blocked (a human-only page or a non-web address)."
 
     # ---- tools -----------------------------------------------------------
 
     async def open_url(self, url: str) -> str:
-        if not url.startswith(("http://", "https://")):
-            url = "https://" + url
-        if not host_allowed(url) or path_blocked(url):
-            raise ToolError(f"{url} is not an allowed site. Allowed: {', '.join(config.ALLOWED_HOSTS)}")
+        if "://" not in url and not url.startswith(("about:", "data:")):
+            url = "https://" + url  # "bvg.de" -> "https://bvg.de"; other schemes are checked below
+        if not scheme_allowed(url) or path_blocked(url):
+            raise ToolError(f"{url} is a human-only page or not a web address; you can't open it.")
         if self.page is None:  # the user closed the helper's tab
             self._adopt(await self._context.new_page())
         page = self._page()

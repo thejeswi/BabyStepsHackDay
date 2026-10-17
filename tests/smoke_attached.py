@@ -44,7 +44,7 @@ def file_bin() -> Response:
 
 @app.get("/opener")
 def opener() -> HTMLResponse:
-    return HTMLResponse('<a id=out target=_blank href="https://examp1e-mail-support.net/x">out</a>'
+    return HTMLResponse('<a id=out target=_blank href="/mock/phone">out</a>'
                         '<a id=dl href="/file.bin">download</a>')
 
 
@@ -99,8 +99,8 @@ async def main() -> None:
         await b._page().click("#out")
         await asyncio.sleep(1.5)
         assert b.page is not agent_tab, "agent did not follow its new tab"
-        assert not b.url().startswith("https://examp1e"), f"new tab reached blocked site: {b.url()}"
-        print("OK agent's new tab followed and blocked:", b.url(), b.blocked_log)
+        assert "/mock/phone" not in b.url(), f"new tab reached the human-only phone page: {b.url()}"
+        print("OK agent's new tab followed; human-only page blocked:", b.url(), b.blocked_log)
         await b.page.close()
         assert b.page is agent_tab, "agent did not fall back to its previous tab"
         print("OK fell back to previous tab after close")

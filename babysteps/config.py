@@ -15,6 +15,10 @@ MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 # The password book (plain JSON, demo only; git-ignored).
 VAULT_FILE = Path(os.environ.get("BABYSTEPS_VAULT_FILE", ROOT / "vault.json")).resolve()
 
+# Local settings and the API key live in env/.env (git-ignored). A root .env from older
+# setups still works; env/.env wins because it is loaded first.
+ENV_DIR = ROOT / "env"
+load_dotenv(ENV_DIR / ".env")
 load_dotenv(ROOT / ".env")
 
 PORT = int(os.environ.get("BABYSTEPS_PORT", "8000"))
@@ -26,19 +30,12 @@ EFFORT = os.environ.get("BABYSTEPS_EFFORT", "medium")
 # Server-side refusal fallback (beta). Set BABYSTEPS_FALLBACKS=0 if the API rejects it.
 USE_FALLBACKS = os.environ.get("BABYSTEPS_FALLBACKS", "1") == "1"
 
-# Hosts the agent's browser may navigate to. Navigations anywhere else are blocked
-# by the browser itself, not by the prompt. Comma-separated; subdomains are included.
-ALLOWED_HOSTS = [
-    h.strip().lower()
-    for h in os.environ.get(
-        "BABYSTEPS_ALLOWED_HOSTS", "127.0.0.1,localhost,bvg.de,wikipedia.org"
-    ).split(",")
-    if h.strip()
-]
-# Paths the agent must never open even on allowed hosts. The fake phone stands in for
-# the user's real phone: the agent must not read the user's codes. /passwords is the
-# human-only view of the password book.
-BLOCKED_PATH_PREFIXES = ["/mock/phone", "/passwords"]
+# The helper may open ANY website: no site allowlist, by design (doing it for the user is
+# safer than making them do it by hand). Only these human-only pages of the BabySteps
+# server itself are blocked: the fake phone stands in for the user's real phone (the agent
+# must not read the user's codes); /passwords is the human view of the password book;
+# /mock/demo-login is the presenter's shortcut to log Ayşe's mail in.
+BLOCKED_PATH_PREFIXES = ["/mock/phone", "/mock/demo-login", "/passwords"]
 
 # Attach to an already running Chrome (the BabySteps bundle: Chrome for Testing + the chat
 # side panel extension, started by scripts/babysteps.sh) instead of launching our own.
@@ -60,5 +57,5 @@ MAX_ELEMENTS = 150      # interactive elements listed per read
 def require_api_key() -> None:
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise SystemExit(
-            "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and put your key in it."
+            "ANTHROPIC_API_KEY is not set. Copy env/.env.example to env/.env and put your key in it."
         )
