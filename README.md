@@ -38,7 +38,7 @@ One-time setup (Python 3.10+, an Anthropic API key):
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e .
-cp .env.example .env        # then put your ANTHROPIC_API_KEY in .env
+cp env/.env.example env/.env  # then put your ANTHROPIC_API_KEY in env/.env
 scripts/install-chrome.sh   # downloads Chrome for Testing into ./chrome (~400 MB, git-ignored)
 ```
 
@@ -118,7 +118,7 @@ real websites:
 
 ## Settings
 
-Environment variables (or lines in `.env`):
+Environment variables (or lines in `env/.env`):
 
 | Variable | Default | Meaning |
 |---|---|---|

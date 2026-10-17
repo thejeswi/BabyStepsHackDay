@@ -10,12 +10,12 @@ what an agent needs on top of that.
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e .
-cp .env.example .env          # the human puts ANTHROPIC_API_KEY in .env
+cp env/.env.example env/.env  # the human puts ANTHROPIC_API_KEY in env/.env
 scripts/install-chrome.sh     # Chrome for Testing into ./chrome (~400 MB, git-ignored)
 ```
 
 - The API key is the human's to provide. Never print it, paste it into chat, or commit it
-  (`.env` is git-ignored). Check that it is set with
+  (`env/` is git-ignored except the example). Check that it is set with
   `.venv/bin/python -c "from babysteps import config; config.require_api_key()"`.
 - The Chrome extension needs no installing. `scripts/babysteps.sh` loads `extension/`
   with `--load-extension` on every start. This only works with the repo's Chrome for

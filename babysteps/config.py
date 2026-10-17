@@ -15,6 +15,10 @@ MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 # The password book (plain JSON, demo only; git-ignored).
 VAULT_FILE = Path(os.environ.get("BABYSTEPS_VAULT_FILE", ROOT / "vault.json")).resolve()
 
+# Local settings and the API key live in env/.env (git-ignored). A root .env from older
+# setups still works; env/.env wins because it is loaded first.
+ENV_DIR = ROOT / "env"
+load_dotenv(ENV_DIR / ".env")
 load_dotenv(ROOT / ".env")
 
 PORT = int(os.environ.get("BABYSTEPS_PORT", "8000"))
@@ -60,5 +64,5 @@ MAX_ELEMENTS = 150      # interactive elements listed per read
 def require_api_key() -> None:
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise SystemExit(
-            "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and put your key in it."
+            "ANTHROPIC_API_KEY is not set. Copy env/.env.example to env/.env and put your key in it."
         )
