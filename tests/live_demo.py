@@ -58,7 +58,7 @@ async def main():
     agent = Agent(b)
     print("memory dir:", config.MEMORY_DIR)
 
-    await turn(agent, b, "I want to read my emails but I don't know my password anymore. My email is inge.mueller@example.mail")
+    await turn(agent, b, "I want to read my emails but I don't know my password anymore. My email is ayse.yilmaz@example.mail")
     for _ in range(8):
         if b._page().url.endswith("/mock/inbox"):
             break

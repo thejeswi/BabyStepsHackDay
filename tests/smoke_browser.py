@@ -33,7 +33,7 @@ async def main():
     refs = {line.split("]")[0][1:]: line for line in page.splitlines() if line.startswith("[")}
     email = next(r for r, l in refs.items() if "type=email" in l)
     pw = next(r for r, l in refs.items() if "type=password" in l)
-    print(await b.type_text(int(email), "inge.mueller@example.mail", False))
+    print(await b.type_text(int(email), "ayse.yilmaz@example.mail", False))
     try:
         await b.type_text(int(pw), "secret", False)
         raise SystemExit("FAIL: password typing was allowed")
@@ -51,7 +51,7 @@ async def main():
     # forgot-password flow: code field must count as secret
     await b.open_url(f"{config.BASE_URL}/mock/forgot")
     p = await b.read_page(); r = next(l for l in p.splitlines() if "type=email" in l).split("]")[0][1:]
-    print(await b.type_text(int(r), "inge.mueller@example.mail", True))
+    print(await b.type_text(int(r), "ayse.yilmaz@example.mail", True))
     p = await b.read_page(); print(p[:700])
     code = next(l for l in p.splitlines() if 'name="code"' in l).split("]")[0][1:]
     try:
@@ -60,9 +60,9 @@ async def main():
         print("OK code field blocked")
     # link click to blocked host from inside the page (log in first via a fresh account)
     from babysteps.mock_site import ACCOUNTS
-    ACCOUNTS["inge.mueller@example.mail"]["password"] = "testtest1"
+    ACCOUNTS["ayse.yilmaz@example.mail"]["password"] = "testtest1"
     await b.open_url(f"{config.BASE_URL}/mock/")
-    await b._page().fill("#email", "inge.mueller@example.mail"); await b._page().fill("#password", "testtest1")
+    await b._page().fill("#email", "ayse.yilmaz@example.mail"); await b._page().fill("#password", "testtest1")
     await b._page().click("button"); await b._settle()
     p = await b.read_page()
     link = next(l for l in p.splitlines() if "SecurityTool" in l).split("]")[0][1:]

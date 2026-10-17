@@ -42,6 +42,29 @@ cp .env.example .env        # then put your ANTHROPIC_API_KEY in .env
 Then open http://127.0.0.1:8000/ in your normal browser and put it on the left half of
 the screen. The helper's own browser window opens on the right.
 
+## Try it: letters and the city portal
+
+The chat has buttons to **show the helper a letter** (instead of taking a photo). Type a
+question first if you like ("What does this mean?"), then click a letter:
+
+- **TV & radio fee letter** — it explains the letter, notices the exemption mentioned in
+  the small print, asks whether you receive basic income support, and fills in the
+  exemption form on the city portal.
+- **Final reminder: unpaid fine** — a fake. It explains why (24-hour threat, foreign bank
+  account, gift cards, "don't contact the office") and tells you not to pay.
+- **Tax office letter** — it explains what's owed and why, points out the one-month
+  objection deadline, and offers to write the objection. Try asking in another language.
+
+**Musterstadt Service** (http://127.0.0.1:8000/city/) is a fictional city portal. Ask
+"I have to go to the Bürgeramt for my citizenship, can you make an appointment?" There
+are no appointments for six weeks, but the portal offers an online application, so the
+helper suggests that instead and fills it in with you. Address registration works the
+same way; a passport really needs an appointment, and it books one. All names, rules and
+numbers there are invented demo content.
+
+The demo persona is **Ayşe Yılmaz** (born 1962, in Germany since 1998); the letters and
+the email account belong to her.
+
 ## Try it on the practice site
 
 The app includes **Example Mail**, a small fake email provider, so demos don't depend on
@@ -89,10 +112,13 @@ Environment variables (or lines in `.env`):
   reads and writes `/memories/...`, stored as Markdown files in `memory/` (git-ignored,
   set `BABYSTEPS_MEMORY_DIR` to move it). Refuses path escapes and password-like lines.
 - `babysteps/mock_site.py` — the Example Mail practice site.
+- `babysteps/city_site.py` — the Musterstadt Service city portal.
+- `babysteps/documents.py` — the demo letters behind the letter buttons.
 - `logs/` — one JSONL file per session with every model response and tool result.
 
-Live end-to-end run of the demo script (uses the API, about $1):
-`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8012 .venv/bin/python tests/live_demo.py`
+Live end-to-end runs of the demo scenes (use the API, about $1 each):
+`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8012 .venv/bin/python tests/live_demo.py` (email + passwords) and
+`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8018 .venv/bin/python tests/live_city.py` (letters + city portal)
 
 Smoke test of the browser part (no API key needed):
 `BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8011 .venv/bin/python tests/smoke_browser.py`

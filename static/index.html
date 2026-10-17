@@ -26,6 +26,12 @@
   #send { font-size: 22px; padding: 0 28px; border-radius: 12px; border: 0; background: var(--accent);
           color:#fff; cursor:pointer; }
   #send:disabled { background:#d6c4b5; cursor: wait; }
+  #docs { display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding: 10px 20px 0; font-size:17px; color:#555; }
+  #docs button { font-size:17px; padding:8px 14px; border-radius:10px; border:2px solid #c2410c; background:#fff; color:#c2410c; cursor:pointer; }
+  #docs button:disabled { opacity:.5; cursor:wait; }
+  .letter { align-self:flex-end; max-width:85%; background:#fffef7; border:1px solid #d6cfa8; box-shadow: 2px 3px 8px #0002;
+            font-family: "Courier New", monospace; font-size:15px; padding:16px 20px; white-space:pre-wrap; border-radius:4px; }
+  .letter b { font-family: Helvetica, Arial, sans-serif; display:block; margin-bottom:8px; font-size:17px; }
   #thinking { display:none; align-self:flex-start; color:var(--act); font-size:17px; }
   #thinking.on { display:block; }
 </style>
@@ -39,6 +45,7 @@
   <div class="msg assistant">Hello! I can help you with things on the computer. Just tell me what you want to do — for example "I want to read my emails". I will do it in the window next to this one.</div>
   <div id="thinking">One moment…</div>
 </div>
+<div id="docs">📄 Show the helper a letter:</div>
 <form id="form">
   <input id="text" autocomplete="off" placeholder="Type your question here…">
   <button id="send" type="submit">Send</button>
@@ -58,7 +65,7 @@ function add(cls, content) {
   log.scrollTop = log.scrollHeight;
 }
 function setBusy(b) {
-  busy = b; send.disabled = b; thinking.classList.toggle('on', b);
+  busy = b; send.disabled = b; document.querySelectorAll('#docs button').forEach(x => x.disabled = b); thinking.classList.toggle('on', b);
   if (!b) text.focus();
 }
 
@@ -70,7 +77,7 @@ ws.onmessage = (ev) => {
   else if (m.type === 'error') add('error', 'Something went wrong: ' + m.text);
   else if (m.type === 'busy') setBusy(true);
   else if (m.type === 'done') setBusy(false);
-  else if (m.type === 'reset') { log.querySelectorAll('.msg,.action').forEach((e, i) => i && e.remove()); }
+  else if (m.type === 'reset') { log.querySelectorAll('.msg,.action,.letter').forEach((e, i) => i && e.remove()); }
 };
 ws.onclose = () => add('error', 'Lost the connection. Please reload the page.');
 
@@ -86,6 +93,25 @@ document.getElementById('form').addEventListener('submit', (e) => {
 });
 document.getElementById('reset').addEventListener('click', () => {
   if (!busy) ws.send(JSON.stringify({type: 'reset'}));
+});
+fetch('/api/documents').then(r => r.json()).then(docs => {
+  for (const [id, d] of Object.entries(docs)) {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.textContent = d.button;
+    btn.addEventListener('click', () => {
+      if (busy) return;
+      const q = text.value.trim();
+      if (q) add('user', q);
+      const card = document.createElement('div');
+      card.className = 'letter';
+      const t = document.createElement('b'); t.textContent = d.title;
+      card.appendChild(t); card.appendChild(document.createTextNode(d.text));
+      log.insertBefore(card, thinking); log.scrollTop = log.scrollHeight;
+      text.value = ''; setBusy(true);
+      ws.send(JSON.stringify({type: 'document', id, text: q}));
+    });
+    document.getElementById('docs').appendChild(btn);
+  }
 });
 text.focus();
 </script>

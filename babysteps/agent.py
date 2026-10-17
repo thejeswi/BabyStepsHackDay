@@ -16,7 +16,7 @@ from .prompt import SYSTEM_PROMPT
 
 _OS = {"Darwin": "a Mac (keyboard shortcuts use Cmd, not Ctrl)", "Windows": "Windows"}.get(platform.system(), platform.system())
 # Fixed for the whole run, so it doesn't break prompt caching.
-FULL_SYSTEM_PROMPT = SYSTEM_PROMPT + f"\n## This computer\nThe user's computer is {_OS}.\n"
+FULL_SYSTEM_PROMPT = SYSTEM_PROMPT.replace("{BASE_URL}", config.BASE_URL) + f"\n## This computer\nThe user's computer is {_OS}.\n"
 
 Emit = Callable[[dict], Awaitable[None]]
 
@@ -79,7 +79,7 @@ TOOLS = [
         "new_password",
         "Make a new strong random password, save it in the password book under the current page's "
         "site, and fill it into the given box(es) (e.g. 'password' and 'repeat password').",
-        {"entry": {"type": "string", "description": "Name for the entry, e.g. 'Example Mail (inge.mueller@example.mail)'."},
+        {"entry": {"type": "string", "description": "Name for the entry, e.g. 'Example Mail (ayse.yilmaz@example.mail)'."},
          "username": {"type": "string"},
          "refs": {"type": "array", "items": {"type": "integer"}}},
         ["entry", "username", "refs"],
@@ -103,10 +103,15 @@ class Agent:
         # Irreversible clicks: blocked until a user message arrives after the block.
         self._pending_confirmation: int | None = None
         self._user_spoke_since_block = False
+        self._last_reply_asked = False   # did the helper's last finished reply ask the user something?
+        self._blocked_this_turn = False
+        self._asked_before_this_turn = False
         self._log_path = config.LOG_DIR / f"session-{time.strftime('%Y%m%d-%H%M%S')}.jsonl"
 
     def reset(self) -> None:
         self.messages = []
+        self._last_reply_asked = False
+        self._blocked_this_turn = False
         self._pending_confirmation = None
         self._user_spoke_since_block = False
 
@@ -142,10 +147,16 @@ class Agent:
             ref = args["ref"]
             label = await b.element_text(ref)
             if b.looks_irreversible(label):
-                ok = args["confirmed"] and self._pending_confirmation == ref and self._user_spoke_since_block
+                # Allowed only after the user answered: either this exact click was blocked and the
+                # user has spoken since, or the helper's previous reply asked a question and this is
+                # the turn that answers it (and nothing was blocked in this turn yet).
+                after_block = self._pending_confirmation == ref and self._user_spoke_since_block
+                after_question = self._asked_before_this_turn and not self._blocked_this_turn
+                ok = args["confirmed"] and (after_block or after_question)
                 if not ok:
                     self._pending_confirmation = ref
                     self._user_spoke_since_block = False
+                    self._blocked_this_turn = True
                     await emit({"type": "action", "text": f"Waiting for your OK before clicking “{label}”"})
                     return (
                         f"NOT clicked: “{label}” can't be undone. Ask the user in plain words whether "
@@ -206,6 +217,9 @@ class Agent:
 
     async def handle_user_message(self, text: str, emit: Emit) -> None:
         self._user_spoke_since_block = True
+        self._blocked_this_turn = False
+        self._asked_before_this_turn = self._last_reply_asked
+        self._last_reply_asked = False
         self.messages.append({"role": "user", "content": text})
         self._log("user", text)
 
@@ -224,7 +238,9 @@ class Agent:
             if response.stop_reason == "max_tokens":
                 raise RuntimeError("Model hit max_tokens; answer cut off")
             if response.stop_reason != "tool_use":
-                return  # end_turn: waiting for the user
+                # end_turn: waiting for the user. Remember whether we asked them something.
+                self._last_reply_asked = any(blk.type == "text" and "?" in blk.text for blk in response.content)
+                return
 
             results = []
             for block in response.content:

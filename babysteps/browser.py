@@ -73,8 +73,8 @@ _HIGHLIGHT_JS = r"""
 
 # Button texts that mean "this can't be undone". English + German, matched as whole words.
 _IRREVERSIBLE = re.compile(
-    r"\b(send|submit order|buy|pay|purchase|order|delete|remove|confirm|transfer|donate|"
-    r"senden|absenden|kaufen|bezahlen|zahlen|bestellen|löschen|entfernen|bestätigen|überweisen)\b",
+    r"\b(send|submit|book|buy|pay|purchase|order|delete|remove|confirm|transfer|donate|"
+    r"senden|absenden|buchen|kaufen|bezahlen|zahlen|bestellen|löschen|entfernen|bestätigen|überweisen)\b",
     re.IGNORECASE,
 )
 
@@ -232,11 +232,11 @@ class Browser:
         is_password = await loc.evaluate(
             r"""e => e.type === 'password'
                 || /(current-password|new-password|one-time-code)/.test(e.autocomplete || '')
-                || /(^|[_\-\s])(pass(word)?|passwort|pin|otp|code|passcode|tan)([_\-\s]|$)/i.test((e.name || '') + ' ' + (e.id || ''))"""
+                || /(^|[_\-\s])(pass(word)?|passwort|pin|otp|code|passcode|tan|iban)([_\-\s]|$)/i.test((e.name || '') + ' ' + (e.id || ''))"""
         )
         if is_password:
             raise ToolError(
-                f"[{ref}] is a password/code field. You must not type secrets. "
+                f"[{ref}] is a password, code or bank-account field. You must not type secrets. "
                 "Use ask_user_to_type so the user types it themselves."
             )
         try:

@@ -15,7 +15,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 router = APIRouter(prefix="/mock")
 
 ACCOUNTS: dict[str, dict] = {
-    "inge.mueller@example.mail": {"name": "Inge Müller", "password": secrets.token_hex(8), "phone": "0170 ••• •42"},
+    "ayse.yilmaz@example.mail": {"name": "Ayşe Yılmaz", "password": secrets.token_hex(8), "phone": "0170 ••• •42"},
 }
 SESSIONS: dict[str, str] = {}   # session id -> email
 RESET_CODES: dict[str, str] = {}  # email -> code
@@ -47,7 +47,8 @@ def current_user(request: Request) -> str | None:
 @router.get("/start")
 def start() -> HTMLResponse:
     return page("Start", "<h2>Hello!</h2><p>This browser is controlled by your helper. Just watch, "
-                "or type when the helper asks you to.</p><p><a href='/mock/'>Example Mail</a></p>")
+                "or type when the helper asks you to.</p><p><a href='/mock/'>Example Mail</a> · "
+                "<a href='/city/'>Musterstadt Service (city portal)</a></p>")
 
 
 @router.get("/")
@@ -81,7 +82,7 @@ def signup_form(msg: str = "") -> HTMLResponse:
 <h2>Create your Example Mail account</h2>
 <form method=post action="/mock/signup">
  <label for=name>Your full name</label><input id=name name=name>
- <label for=username>Choose your new email address</label><input id=username name=username placeholder="e.g. inge.mueller">
+ <label for=username>Choose your new email address</label><input id=username name=username placeholder="e.g. ayse.yilmaz">
  <span>@example.mail</span>
  <label for=phone>Mobile phone number (for password resets)</label><input id=phone name=phone type=tel>
  <label for=password>Choose a password</label><input id=password name=password type=password autocomplete=new-password>

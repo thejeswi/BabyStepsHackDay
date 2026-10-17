@@ -13,7 +13,8 @@ import html
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import config, memory, mock_site, vault
+from . import city_site, config, memory, mock_site, vault
+from .documents import DOCUMENTS, compose_message
 from .agent import Agent
 from .browser import Browser
 
@@ -39,12 +40,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(mock_site.router)
+app.include_router(city_site.router)
 app.mount("/static", StaticFiles(directory=config.STATIC_DIR), name="static")
 
 
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(config.STATIC_DIR / "index.html")
+
+
+@app.get("/api/documents")
+def documents() -> dict:
+    return {k: {"button": d["button"], "title": d["title"], "text": d["text"]} for k, d in DOCUMENTS.items()}
 
 
 @app.get("/memory")
@@ -94,12 +101,16 @@ async def ws(socket: WebSocket) -> None:
                 agent.reset()
                 await emit({"type": "reset"})
                 continue
-            if msg["type"] != "user":
+            if msg["type"] == "document":
+                text = compose_message(msg["id"], msg["text"])
+            elif msg["type"] == "user":
+                text = msg["text"]
+            else:
                 raise ValueError(f"Unknown message type {msg['type']!r}")
             async with state["lock"]:
                 await emit({"type": "busy"})
                 try:
-                    await agent.handle_user_message(msg["text"], emit)
+                    await agent.handle_user_message(text, emit)
                 except Exception as e:
                     traceback.print_exc()
                     await emit({"type": "error", "text": f"{type(e).__name__}: {e}"})
