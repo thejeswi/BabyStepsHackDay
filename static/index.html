@@ -88,6 +88,21 @@
           font-size: 1.5rem; cursor:pointer; box-shadow: var(--shadow-float); flex-shrink:0; }
   #send:disabled { opacity:.4; cursor:wait; }
 
+  /* Narrow: Chrome's side panel (about 320-500px wide). Alex on the first header row, the pills below. */
+  @media (max-width: 640px) {
+    header { flex-wrap: wrap; gap: 8px 6px; padding: 10px 12px; }
+    header img { width:40px; height:40px; }
+    header .who { flex-basis: calc(100% - 54px); }
+    .pill { height:34px; padding: 0 10px; gap:4px; font-size:.72rem; white-space:nowrap; }
+    #log { padding: 16px 12px 8px; }
+    #inner h1 { font-size: 1.7rem; }
+    .row { max-width: 100%; }
+    #bottom { padding: 4px 12px 12px; }
+    #docs { gap: 8px; margin-bottom: 8px; }
+    #docs button { padding: 6px 12px 6px 6px; gap: 8px; font-size: .8rem; }
+    #docs button .ico { width:30px; height:30px; font-size: .95rem; }
+  }
+
   @keyframes rise { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform:none; } }
   @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 </style>
@@ -102,7 +117,7 @@
 </header>
 <div id="log"><div id="inner">
   <h1 class="display">Hi! What can I help you with today?</h1>
-  <div class="row"><img src="/static/img/alex.png" alt=""><div class="msg assistant glass-strong">Just tell me what you want to do, or show me a letter. I'll do it in the window next to this one, one step at a time.</div></div>
+  <div class="row"><img src="/static/img/alex.png" alt=""><div class="msg assistant glass-strong">Just tell me what you want to do, or show me a letter. I'll do it right next to this chat, one step at a time.</div></div>
   <div class="row" id="typing"><img src="/static/img/alex.png" alt=""><div class="dots glass-strong"><span></span><span></span><span></span></div></div>
 </div></div>
 <div id="bottom"><div>
