@@ -9,7 +9,7 @@ from typing import Any, Awaitable, Callable
 
 import anthropic
 
-from . import config
+from . import config, memory
 from .browser import Browser, ToolError
 from .prompt import SYSTEM_PROMPT
 
@@ -58,6 +58,8 @@ TOOLS = [
     ),
     _tool("scroll", "Scroll the page.", {"direction": {"type": "string", "enum": ["up", "down"]}}, ["direction"]),
     _tool("go_back", "Go back to the previous page.", {}, []),
+    # Anthropic-defined memory tool: schema-less, backed by babysteps/memory.py.
+    {"type": "memory_20250818", "name": "memory"},
 ]
 
 
@@ -133,6 +135,10 @@ class Agent:
         if name == "scroll":
             await emit({"type": "action", "text": f"Scrolling {args['direction']}"})
             return await b.scroll(args["direction"])
+        if name == "memory":
+            if args["command"] != "view":
+                await emit({"type": "action", "text": "Making a note for next time"})
+            return memory.handle(args)
         if name == "go_back":
             await emit({"type": "action", "text": "Going back"})
             return await b.go_back()

@@ -8,6 +8,9 @@ ROOT = Path(__file__).resolve().parent.parent
 STATIC_DIR = ROOT / "static"
 LOG_DIR = ROOT / "logs"
 LOG_DIR.mkdir(exist_ok=True)
+# What the helper remembers about its user, as readable Markdown files (memory tool backend).
+MEMORY_DIR = Path(os.environ.get("BABYSTEPS_MEMORY_DIR", ROOT / "memory"))
+MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 load_dotenv(ROOT / ".env")
 

@@ -15,6 +15,9 @@ It is built to be careful in the ways a good son or daughter would be:
   is enforced in code: the click is refused until you have answered.
 - **It treats requests like "install this program" or "buy gift cards" as possible
   scams**, and explains why instead of doing them.
+- **It remembers you between conversations**, in a plain notebook the family can read at
+  http://127.0.0.1:8000/memory ("What I remember" link). It notes what you know, which
+  sites you have accounts on and what it did for you, never passwords.
 - **It can only use the browser**, and only on allowed websites. It has no access to your
   files or the rest of the computer. The browser starts with an empty profile, so it sees
   none of your saved logins. Downloads are blocked.
@@ -72,6 +75,9 @@ Environment variables (or lines in `.env`):
   as a numbered list of buttons, links and boxes plus the visible text (no screenshots,
   which keeps it cheap). The site allowlist, the download block and the password-field
   block are enforced here.
+- `babysteps/memory.py` — backend for Anthropic's memory tool (`memory_20250818`): the model
+  reads and writes `/memories/...`, stored as Markdown files in `memory/` (git-ignored,
+  set `BABYSTEPS_MEMORY_DIR` to move it). Refuses path escapes and password-like lines.
 - `babysteps/mock_site.py` — the Example Mail practice site.
 - `logs/` — one JSONL file per session with every model response and tool result.
 
