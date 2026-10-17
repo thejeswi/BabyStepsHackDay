@@ -1,0 +1,119 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-glass-dark: var(--glass-dark);
+  --color-on-photo: var(--on-photo);
+  --color-bubble-user: var(--bubble-user);
+  --color-bubble-user-foreground: var(--bubble-user-foreground);
+  --color-live: var(--live);
+}
+
+:root {
+  --radius: 1.25rem;
+  --background: oklch(0.975 0.008 300);
+  --foreground: oklch(0.22 0.03 290);
+  --card: oklch(0.99 0.004 300);
+  --card-foreground: oklch(0.22 0.03 290);
+  --popover: oklch(0.99 0.004 300);
+  --popover-foreground: oklch(0.22 0.03 290);
+  --primary: oklch(0.42 0.11 292);
+  --primary-foreground: oklch(0.99 0.004 300);
+  --secondary: oklch(0.93 0.025 300);
+  --secondary-foreground: oklch(0.3 0.06 292);
+  --muted: oklch(0.94 0.012 300);
+  --muted-foreground: oklch(0.46 0.03 290);
+  --accent: oklch(0.88 0.06 300);
+  --accent-foreground: oklch(0.28 0.07 292);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.9 0.015 300);
+  --input: oklch(0.9 0.015 300);
+  --ring: oklch(0.55 0.12 292);
+  --glass: oklch(1 0 0 / 55%);
+  --glass-strong: oklch(1 0 0 / 78%);
+  --glass-dark: oklch(0.2 0.03 290 / 38%);
+  --on-photo: oklch(0.99 0 0);
+  --bubble-user: oklch(0.42 0.11 292);
+  --bubble-user-foreground: oklch(0.99 0.004 300);
+  --live: oklch(0.7 0.16 150);
+  --gradient-ambient:
+    radial-gradient(60% 50% at 15% 10%, oklch(0.9 0.06 300 / 90%), transparent 70%),
+    radial-gradient(50% 45% at 90% 20%, oklch(0.93 0.05 60 / 80%), transparent 70%),
+    radial-gradient(60% 60% at 60% 100%, oklch(0.9 0.05 320 / 70%), transparent 70%),
+    oklch(0.975 0.008 300);
+  --shadow-soft: 0 20px 50px -20px oklch(0.35 0.08 292 / 30%);
+  --shadow-float: 0 10px 30px -8px oklch(0.2 0.05 290 / 35%);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { font-size: 18px; }
+  body {
+    background: var(--gradient-ambient);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+@utility bg-ambient { background: var(--gradient-ambient); }
+@utility shadow-soft { box-shadow: var(--shadow-soft); }
+@utility shadow-float { box-shadow: var(--shadow-float); }
+
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid oklch(1 0 0 / 60%);
+}
+@utility glass-strong {
+  background: var(--glass-strong);
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid oklch(1 0 0 / 70%);
+}
+@utility glass-dark {
+  background: var(--glass-dark);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid oklch(1 0 0 / 22%);
+  color: var(--on-photo);
+}
+
+@utility animate-rise { animation: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@utility animate-breathe { animation: breathe 2.4s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { transform: scale(1); opacity: .9 } 50% { transform: scale(1.12); opacity: .5 } }
