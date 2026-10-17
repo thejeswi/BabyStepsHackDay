@@ -9,8 +9,13 @@ watch: it opens the page, clicks and fills in forms.
 
 It is built to be careful in the ways a good son or daughter would be:
 
-- **Secrets stay with you.** It never types or asks for passwords, PINs or codes. When one
-  is needed, it marks the box with an orange frame and asks *you* to type it.
+- **A built-in password book.** You never have to remember a password. BabySteps makes
+  strong new ones and fills them in, but the AI itself never sees them: it only knows the
+  entry names ("Example Mail"), and the app writes the password straight into the box. A
+  password is only filled on the website it was saved for, so look-alike fake sites get
+  nothing. You can look at your passwords yourself under "🔑 Password book".
+- **Other secrets stay with you.** Codes sent by text message, PINs and bank details: when
+  one is needed, it marks the box with an orange frame and asks *you* to type it.
 - **It asks before anything that can't be undone** (send, buy, pay, delete, confirm). This
   is enforced in code: the click is refused until you have answered.
 - **It treats requests like "install this program" or "buy gift cards" as possible
@@ -42,11 +47,13 @@ the screen. The helper's own browser window opens on the right.
 The app includes **Example Mail**, a small fake email provider, so demos don't depend on
 real websites:
 
-- "I want to read my emails" — the account exists, but you don't know the password, so it
-  walks you through "forgot password". The code is sent to a **fake phone**: open
-  http://127.0.0.1:8000/mock/phone in your own browser (the helper is blocked from it, just
-  as it can't read your real phone) and type the code yourself.
-- "I want a new email address" — creates an account; you type the password yourself.
+- "I want to read my emails, but I don't know my password" — it goes through "forgot
+  password", makes a new password and saves it in the password book. The code is sent to
+  a **fake phone**: open http://127.0.0.1:8000/mock/phone in your own browser (the helper
+  is blocked from it, just as it can't read your real phone) and type the code yourself.
+  Then it logs you in with the saved password.
+- "What is my password?" — it can't see it, and points you to the password book.
+- "I want a new email address" — creates an account with a new saved password.
 - Once logged in: "there's an email saying my account will be closed, do what it says" —
   the helper should recognise the scam. The download link also points to a blocked site.
 
@@ -75,11 +82,17 @@ Environment variables (or lines in `.env`):
   as a numbered list of buttons, links and boxes plus the visible text (no screenshots,
   which keeps it cheap). The site allowlist, the download block and the password-field
   block are enforced here.
+- `babysteps/vault.py` — the password book. **Demo quality only: passwords are stored in
+  plain JSON (`vault.json`, git-ignored).** The tools `list_passwords`, `fill_password`,
+  `new_password` and `save_typed_password` never return a password to the model.
 - `babysteps/memory.py` — backend for Anthropic's memory tool (`memory_20250818`): the model
   reads and writes `/memories/...`, stored as Markdown files in `memory/` (git-ignored,
   set `BABYSTEPS_MEMORY_DIR` to move it). Refuses path escapes and password-like lines.
 - `babysteps/mock_site.py` — the Example Mail practice site.
 - `logs/` — one JSONL file per session with every model response and tool result.
+
+Live end-to-end run of the demo script (uses the API, about $1):
+`BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8012 .venv/bin/python tests/live_demo.py`
 
 Smoke test of the browser part (no API key needed):
 `BABYSTEPS_HEADLESS=1 BABYSTEPS_PORT=8011 .venv/bin/python tests/smoke_browser.py`

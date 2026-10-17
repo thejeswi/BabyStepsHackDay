@@ -20,6 +20,8 @@ from . import config
 _READ_PAGE_JS = r"""
 (maxElements) => {
   document.querySelectorAll('[data-bs-ref]').forEach(e => e.removeAttribute('data-bs-ref'));
+  // The orange frame is for one request only; it disappears once the helper looks again.
+  document.querySelectorAll('[data-bs-highlight]').forEach(e => { e.style.outline = ''; e.removeAttribute('data-bs-highlight'); });
   const sel = 'a[href], button, input, select, textarea, [role=button], [role=link], [role=checkbox], [onclick]';
   const out = [];
   let n = 0;
@@ -234,6 +236,22 @@ class Browser:
         except Exception as e:
             raise ToolError(f"Could not type into [{ref}]: {e}") from e
         return f"Typed into [{ref}]." + (" Pressed Enter." if press_enter else "") + self._consume_blocked()
+
+    async def fill_secret(self, ref: int, value: str) -> None:
+        """Fill a field with a secret. The value is never returned or logged."""
+        loc = await self._locate(ref)
+        try:
+            await loc.fill(value, timeout=5000)
+        except Exception as e:
+            raise ToolError(f"Could not fill [{ref}]: {type(e).__name__}") from None  # message could echo the value
+
+    async def read_secret(self, ref: int) -> str:
+        """Read what the user typed into a field (for saving it). Never shown to the model."""
+        loc = await self._locate(ref)
+        return await loc.input_value()
+
+    def url(self) -> str:
+        return self._page().url
 
     async def select_option(self, ref: int, option: str) -> str:
         loc = await self._locate(ref)

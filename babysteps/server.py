@@ -13,7 +13,7 @@ import html
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import config, memory, mock_site
+from . import config, memory, mock_site, vault
 from .agent import Agent
 from .browser import Browser
 
@@ -58,6 +58,24 @@ def memory_page() -> HTMLResponse:
         "background:#fdf8f0}pre{white-space:pre-wrap;background:#fff;padding:16px;border-radius:10px}</style>"
         f"<h1>What BabySteps remembers</h1><p>Files in <code>{html.escape(str(config.MEMORY_DIR))}</code>. "
         f"You can edit or delete them.</p>{body}"
+    )
+
+
+@app.get("/passwords")
+def passwords_page() -> HTMLResponse:
+    """The password book, for the human only (the agent's browser is blocked from this path)."""
+    rows = "".join(
+        f"<tr><td>{html.escape(e['name'])}</td><td>{html.escape(e['site'])}</td><td>{html.escape(e['username'])}</td>"
+        f"<td><details><summary>show</summary><code>{html.escape(e['password'])}</code></details></td></tr>"
+        for e in vault.entries_for_human()
+    ) or "<tr><td colspan=4>Empty so far.</td></tr>"
+    return HTMLResponse(
+        "<!doctype html><meta charset=utf-8><title>Password book</title>"
+        "<style>body{font-family:Helvetica,Arial,sans-serif;font-size:20px;max-width:900px;margin:30px auto;"
+        "background:#fdf8f0}table{border-collapse:collapse;width:100%;background:#fff}td,th{padding:10px;"
+        "border-bottom:1px solid #ddd;text-align:left}code{font-size:22px}</style>"
+        "<h1>🔑 Your password book</h1><p>BabySteps fills these in for you. It cannot see them.</p>"
+        f"<table><tr><th>Name</th><th>Website</th><th>Username</th><th>Password</th></tr>{rows}</table>"
     )
 
 

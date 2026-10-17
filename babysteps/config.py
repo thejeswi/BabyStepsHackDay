@@ -12,6 +12,8 @@ LOG_DIR.mkdir(exist_ok=True)
 # resolve(): on macOS /var is a symlink to /private/var; unresolved paths break relative_to().
 MEMORY_DIR = Path(os.environ.get("BABYSTEPS_MEMORY_DIR", ROOT / "memory")).resolve()
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+# The password book (plain JSON, demo only; git-ignored).
+VAULT_FILE = Path(os.environ.get("BABYSTEPS_VAULT_FILE", ROOT / "vault.json")).resolve()
 
 load_dotenv(ROOT / ".env")
 
@@ -34,8 +36,9 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 # Paths the agent must never open even on allowed hosts. The fake phone stands in for
-# the user's real phone: the agent must not read the user's codes.
-BLOCKED_PATH_PREFIXES = ["/mock/phone"]
+# the user's real phone: the agent must not read the user's codes. /passwords is the
+# human-only view of the password book.
+BLOCKED_PATH_PREFIXES = ["/mock/phone", "/passwords"]
 
 # Where the agent's browser window sits: the right half of a typical laptop screen.
 BROWSER_WINDOW_POSITION = os.environ.get("BABYSTEPS_WINDOW_POS", "760,0")

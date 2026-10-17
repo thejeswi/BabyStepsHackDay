@@ -9,7 +9,7 @@ from typing import Any, Awaitable, Callable
 
 import anthropic
 
-from . import config, memory
+from . import config, memory, vault
 from .browser import Browser, ToolError
 from .prompt import SYSTEM_PROMPT
 
@@ -58,6 +58,33 @@ TOOLS = [
     ),
     _tool("scroll", "Scroll the page.", {"direction": {"type": "string", "enum": ["up", "down"]}}, ["direction"]),
     _tool("go_back", "Go back to the previous page.", {}, []),
+    _tool(
+        "list_passwords",
+        "List the user's password book: entry names, sites and usernames. Passwords are never shown to you.",
+        {}, [],
+    ),
+    _tool(
+        "fill_password",
+        "Fill a saved password into password box(es) on the current page, by entry name. Only works "
+        "on the site the entry belongs to. You never see the password.",
+        {"entry": {"type": "string"}, "refs": {"type": "array", "items": {"type": "integer"}}},
+        ["entry", "refs"],
+    ),
+    _tool(
+        "new_password",
+        "Make a new strong random password, save it in the password book under the current page's "
+        "site, and fill it into the given box(es) (e.g. 'password' and 'repeat password').",
+        {"entry": {"type": "string", "description": "Name for the entry, e.g. 'Example Mail (inge.mueller@example.mail)'."},
+         "username": {"type": "string"},
+         "refs": {"type": "array", "items": {"type": "integer"}}},
+        ["entry", "username", "refs"],
+    ),
+    _tool(
+        "save_typed_password",
+        "Save the password the USER typed into a box into the password book (you don't see it).",
+        {"entry": {"type": "string"}, "username": {"type": "string"}, "ref": REF},
+        ["entry", "username", "ref"],
+    ),
     # Anthropic-defined memory tool: schema-less, backed by babysteps/memory.py.
     {"type": "memory_20250818", "name": "memory"},
 ]
@@ -135,6 +162,34 @@ class Agent:
         if name == "scroll":
             await emit({"type": "action", "text": f"Scrolling {args['direction']}"})
             return await b.scroll(args["direction"])
+        if name == "list_passwords":
+            await emit({"type": "action", "text": "Looking in your password book"})
+            return vault.listing()
+        if name == "fill_password":
+            entry = vault.get(args["entry"])
+            vault.check_site(entry, b.url())
+            if not args["refs"]:
+                raise ToolError("Give at least one box number")
+            for ref in args["refs"]:
+                await b.fill_secret(ref, entry["password"])
+            await emit({"type": "action", "text": f"Filling in your saved password for “{args['entry']}”"})
+            return f"Filled the saved password into {args['refs']}. (You don't see it.)"
+        if name == "new_password":
+            if not args["refs"]:
+                raise ToolError("Give the box number(s) to fill")
+            pw = vault.generate()
+            for ref in args["refs"]:
+                await b.fill_secret(ref, pw)
+            vault.put(args["entry"], vault.site_of(b.url()), args["username"], pw)
+            await emit({"type": "action", "text": f"Made a new password and saved it in your password book as “{args['entry']}”"})
+            return (f"New password filled into {args['refs']} and saved as {args['entry']!r} for "
+                    f"{vault.site_of(b.url())}. Note: if the form is not submitted successfully, the saved "
+                    "password may not match the account.")
+        if name == "save_typed_password":
+            pw = await b.read_secret(args["ref"])
+            vault.put(args["entry"], vault.site_of(b.url()), args["username"], pw)
+            await emit({"type": "action", "text": f"Saved your password in your password book as “{args['entry']}”"})
+            return f"Saved what the user typed in [{args['ref']}] as {args['entry']!r}."
         if name == "memory":
             if args["command"] != "view":
                 await emit({"type": "action", "text": "Making a note for next time"})
