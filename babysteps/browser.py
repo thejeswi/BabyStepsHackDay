@@ -1,4 +1,13 @@
-"""The agent's browser: a visible Chromium window with a fresh, empty profile.
+"""The agent's browser: a visible Chrome window, separate from the user's normal browser.
+
+Two modes:
+- launched (default): Playwright starts its own Chromium window next to the chat page;
+- attached (config.CDP_URL set): Playwright connects to the BabySteps Chrome, where the
+  chat lives in the side panel, and the agent works in its own tab of that same window.
+
+The agent's pages are the tab it opened plus any tab those open (links with
+target=_blank). The user's other tabs are left alone; the limits below apply to the
+agent's pages.
 
 Safety limits are enforced here in code, not in the prompt:
 - main-frame navigations to hosts outside config.ALLOWED_HOSTS are aborted;
@@ -102,37 +111,76 @@ class Browser:
         self._browser = None
         self._context = None
         self.page: Page | None = None
+        self._agent_pages: list[Page] = []
         self.blocked_log: list[str] = []
 
     async def start(self) -> None:
         self._pw = await async_playwright().start()
-        self._browser = await self._pw.chromium.launch(
-            headless=config.HEADLESS,
-            args=[
-                f"--window-position={config.BROWSER_WINDOW_POSITION}",
-                f"--window-size={config.BROWSER_WINDOW_SIZE}",
-            ],
-        )
-        # A new context = fresh profile: no cookies, no saved logins from the real browser.
-        self._context = await self._browser.new_context(accept_downloads=False, viewport=None)
+        if config.CDP_URL:
+            self._browser = await self._pw.chromium.connect_over_cdp(config.CDP_URL)
+            # The user's own profile (persistent: logins survive restarts).
+            self._context = self._browser.contexts[0]
+            # accept_downloads only exists for new contexts; deny downloads browser-wide instead.
+            # (Playwright still emits a "download" event, but Chrome cancels it.)
+            cdp = await self._browser.new_browser_cdp_session()
+            await cdp.send("Browser.setDownloadBehavior", {"behavior": "deny"})
+        else:
+            self._browser = await self._pw.chromium.launch(
+                headless=config.HEADLESS,
+                args=[
+                    f"--window-position={config.BROWSER_WINDOW_POSITION}",
+                    f"--window-size={config.BROWSER_WINDOW_SIZE}",
+                ],
+            )
+            # A new context = fresh profile: no cookies, no saved logins from the real browser.
+            self._context = await self._browser.new_context(accept_downloads=False, viewport=None)
         await self._context.route("**/*", self._route)
-        self._context.on("page", self._on_new_page)
-        self.page = await self._context.new_page()
-        await self.page.goto(f"{config.BASE_URL}/mock/start")
+        # Reuse Chrome's empty start tab if there is one, so the user isn't left with two tabs.
+        blank = [p for p in self._context.pages if p.url in ("about:blank", "chrome://newtab/")]
+        self._adopt(blank[0] if blank else await self._context.new_page())
+        await self._page().goto(f"{config.BASE_URL}/mock/start")
 
     async def stop(self) -> None:
+        # In attached mode this only disconnects; the user's Chrome stays open.
         if self._browser:
             await self._browser.close()
         if self._pw:
             await self._pw.stop()
 
-    def _on_new_page(self, page: Page) -> None:
-        # Links that open a new tab: follow the newest tab, as a person would.
+    def _adopt(self, page: Page) -> None:
+        """Make page the agent's current tab. Tabs it opens are followed, as a person would."""
+        if page in self._agent_pages:
+            return
+        self._agent_pages.append(page)
         self.page = page
+        page.on("popup", self._adopt)
+        page.on("close", self._on_close)
+
+    def _on_close(self, page: Page) -> None:
+        self._agent_pages.remove(page)
+        if self.page is page:
+            self.page = self._agent_pages[-1] if self._agent_pages else None
+
+    @staticmethod
+    def _is_main_frame(request: Request) -> bool:
+        try:
+            return request.frame.parent_frame is None
+        except Exception:
+            return True  # frame not created yet: the first navigation of a new tab
+
+    async def _is_agent_navigation(self, request: Request) -> bool:
+        try:
+            page = request.frame.page
+        except Exception:
+            # A new tab's first navigation can come before its frame exists, so we can't tell
+            # whose tab it is. Fail closed: treat it as the agent's.
+            return True
+        # It can also come before the tab's popup event: check who opened it.
+        return page in self._agent_pages or await page.opener() in self._agent_pages
 
     async def _route(self, route: Route, request: Request) -> None:
-        if request.is_navigation_request() and request.frame.parent_frame is None:
-            if not host_allowed(request.url) or path_blocked(request.url):
+        if request.is_navigation_request() and self._is_main_frame(request):
+            if (not host_allowed(request.url) or path_blocked(request.url)) and await self._is_agent_navigation(request):
                 self.blocked_log.append(request.url)
                 await route.abort("blockedbyclient")
                 return
@@ -140,7 +188,7 @@ class Browser:
 
     def _page(self) -> Page:
         if self.page is None:
-            raise RuntimeError("Browser not started")
+            raise ToolError("The helper's tab was closed. Use open_url to open a page again.")
         return self.page
 
     async def _settle(self) -> None:
@@ -165,6 +213,8 @@ class Browser:
             url = "https://" + url
         if not host_allowed(url) or path_blocked(url):
             raise ToolError(f"{url} is not an allowed site. Allowed: {', '.join(config.ALLOWED_HOSTS)}")
+        if self.page is None:  # the user closed the helper's tab
+            self._adopt(await self._context.new_page())
         page = self._page()
         try:
             await page.goto(url, timeout=15000)
@@ -222,7 +272,7 @@ class Browser:
             raise ToolError(f"Could not click [{ref}]: {e}") from e
         await self._settle()
         if self.blocked_log and self._page().url.startswith("chrome-error://"):
-            await self._page().go_back(timeout=8000)  # don't leave the user staring at an error page
+            await self._page().go_back(wait_until="commit", timeout=8000)  # don't leave the user staring at an error page
             await self._settle()
         return f"Clicked [{ref}]. Now on {self._page().url}. Call read_page to see the result." + self._consume_blocked()
 
@@ -287,6 +337,8 @@ class Browser:
         return f"Scrolled {direction}. Call read_page to see the page."
 
     async def go_back(self) -> str:
-        await self._page().go_back(timeout=8000)
+        # "commit": a page restored from Chrome's back/forward cache fires no load event
+        # (Playwright disables that cache only in browsers it launches, not attached ones).
+        await self._page().go_back(wait_until="commit", timeout=8000)
         await self._settle()
         return f"Went back. Now on {self._page().url}."
