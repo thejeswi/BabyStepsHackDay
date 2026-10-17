@@ -40,6 +40,11 @@ ALLOWED_HOSTS = [
 # human-only view of the password book.
 BLOCKED_PATH_PREFIXES = ["/mock/phone", "/passwords"]
 
+# Attach to an already running Chrome (the BabySteps bundle: Chrome for Testing + the chat
+# side panel extension, started by scripts/babysteps.sh) instead of launching our own.
+# Empty = launch a separate Chromium window (old two-window mode; used by the tests).
+CDP_URL = os.environ.get("BABYSTEPS_CDP_URL", "")
+
 # Where the agent's browser window sits: the right half of a typical laptop screen.
 BROWSER_WINDOW_POSITION = os.environ.get("BABYSTEPS_WINDOW_POS", "760,0")
 BROWSER_WINDOW_SIZE = os.environ.get("BABYSTEPS_WINDOW_SIZE", "760,900")

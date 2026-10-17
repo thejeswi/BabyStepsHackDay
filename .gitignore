@@ -7,3 +7,6 @@ logs/
 *.egg-info/
 memory/
 vault.json
+# Standalone Chrome (scripts/install-chrome.sh) and its profile: too large / personal for git
+/chrome/
+/.chrome-profile/

@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "BabySteps",
+  "version": "0.1.0",
+  "description": "A patient helper that does web tasks for you while you watch.",
+  "permissions": ["sidePanel"],
+  "host_permissions": ["http://127.0.0.1/*"],
+  "background": { "service_worker": "background.js" },
+  "side_panel": { "default_path": "panel.html" },
+  "action": { "default_title": "Open the BabySteps helper" }
+}
