@@ -1,0 +1,16 @@
+[project]
+name = "babysteps"
+version = "0.1.0"
+description = "A patient helper that does simple web tasks for people who are not comfortable with computers."
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic",
+    "fastapi",
+    "uvicorn[standard]",
+    "playwright",
+    "python-dotenv",
+    "python-multipart",
+]
+
+[tool.setuptools]
+packages = ["babysteps"]
