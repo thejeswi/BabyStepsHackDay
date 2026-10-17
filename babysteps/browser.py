@@ -74,7 +74,7 @@ _HIGHLIGHT_JS = r"""
 # Button texts that mean "this can't be undone". English + German, matched as whole words.
 _IRREVERSIBLE = re.compile(
     r"\b(send|submit|book|buy|pay|purchase|order|delete|remove|confirm|transfer|donate|"
-    r"senden|absenden|buchen|kaufen|bezahlen|zahlen|bestellen|löschen|entfernen|bestätigen|überweisen)\b",
+    r"senden|absenden|buchen|eintragen|erteilen|kaufen|bezahlen|zahlen|bestellen|löschen|entfernen|bestätigen|überweisen)\b",
     re.IGNORECASE,
 )
 

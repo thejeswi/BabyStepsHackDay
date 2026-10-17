@@ -1,6 +1,8 @@
 # BabySteps demo script
 
-Persona: **Ayşe Yılmaz**, born 1962, Turkish, in Germany since 1998. You type as her.
+Persona: **Ayşe Yılmaz**, born 1962, Turkish, in Germany since 1998. You type as her, in English.
+The letters and both websites are in German (styled like a German city service portal and a
+German free-mail provider), so the audience sees she couldn't manage them alone.
 
 ## Before the demo (5 minutes)
 
@@ -24,7 +26,7 @@ helper keeps knowing who Ayşe is. Each scene takes 30–90 seconds of helper ti
 **Type:**
 > I have to go to the Bürgeramt for my citizenship. Can you make an appointment for me?
 
-**Expect:** it opens the Musterstadt city portal (right window), finds that you don't need an
+**Expect:** it opens the ServicePortal Musterstadt (right window, in German), finds that you don't need an
 appointment any more, and asks whether to fill in the online application with you.
 
 **Type:**
@@ -97,7 +99,7 @@ Click **Start over**.
 **Type:**
 > I want to read my emails but I don't know my password anymore. My email is ayse.yilmaz@example.mail
 
-**Expect:** it opens Example Mail, clicks "Forgot password?", fills in the email and asks for
+**Expect:** it opens Example Mail, clicks "Passwort vergessen?" (forgot password), fills in the email and asks for
 a code to be sent to her phone (it may ask "shall I send it?": type **yes**). It makes a new
 password, saves it in the password book and fills it in itself. Then it frames the code
 box in **orange**.
